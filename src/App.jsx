@@ -1,82 +1,90 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 const useField = (type) => {
-  const [value, setValue] = useState('')
+  const [value, setValue] = useState("");
 
   const onChange = (event) => {
-    setValue(event.target.value)
-  }
+    setValue(event.target.value);
+  };
 
   return {
     type,
     value,
-    onChange
-  }
-}
+    onChange,
+  };
+};
 
-const useCountry = (name) => {
-  const [country, setCountry] = useState(null)
+const useResource = (baseUrl) => {
+  const [resources, setResources] = useState([]);
 
   useEffect(() => {
-    if (name) {
-      axios
-        .get(`https://studies.cs.helsinki.fi/restcountries/api/name/${name}`)
-        .then(response => {
-          setCountry({ data: response.data, found:true})
-        })
-        .catch(error => {
-          setCountry({ data: null,found:false })
-        })
+    const fetch = async () => {
+      const response = await axios.get(baseUrl);
+      setResources(response.data);
+    };
+
+    fetch();
+  }, [baseUrl]);
+
+  const create = async (resource) => {
+    try {
+      const response = await axios.post(baseUrl, resource);
+      setResources((resources) => [...resources, response.data]);
+    } catch (error) {
+      console.log("Error:", error);
     }
-  }, [name])
+  };
 
-  return country
-}
+  const service = {
+    create,
+  };
 
-const Country = ({ country }) => {
-  if (!country) {
-    return null
-  }
-
-  if (!country.found) {
-    return (
-      <div>
-        not found...
-      </div>
-    )
-  }
-
-  return (
-    <div>
-      <h3>{country.data.name.common} </h3>
-      <div>capital {country.data.capital} </div>
-      <div>population {country.data.population}</div> 
-      <img src={country.data.flags.png} height='100' alt={`flag of ${country.data.name}`}/>  
-    </div>
-  )
-}
+  return [resources, service];
+};
 
 const App = () => {
-  const nameInput = useField('text')
-  const [name, setName] = useState('')
-  const country = useCountry(name)
+  const content = useField("text");
+  const name = useField("text");
+  const number = useField("text");
 
-  const fetch = (e) => {
-    e.preventDefault()
-    setName(nameInput.value)
-  }
+  const [notes, noteService] = useResource("http://localhost:3005/notes");
+  const [persons, personService] = useResource("http://localhost:3005/persons");
+
+  const handleNoteSubmit = (event) => {
+    event.preventDefault();
+    noteService.create({ content: content.value });
+  };
+
+  const handlePersonSubmit = (event) => {
+    event.preventDefault();
+    personService.create({ name: name.value, number: number.value });
+  };
 
   return (
     <div>
-      <form onSubmit={fetch}>
-        <input {...nameInput} />
-        <button>find</button>
+      <h2>notes</h2>
+      <form onSubmit={handleNoteSubmit}>
+        <input {...content} />
+        <button>create</button>
       </form>
+      {notes.map((n) => (
+        <p key={n.id}>{n.content}</p>
+      ))}
 
-      <Country country={country} />
+      <h2>persons</h2>
+      <form onSubmit={handlePersonSubmit}>
+        name <input {...name} /> <br />
+        number <input {...number} />
+        <button>create</button>
+      </form>
+      {persons.map((n) => (
+        <p key={n.id}>
+          {n.name} {n.number}
+        </p>
+      ))}
     </div>
-  )
-}
+  );
+};
 
-export default App
+export default App;

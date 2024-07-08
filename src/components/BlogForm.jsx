@@ -1,61 +1,61 @@
-import { useState } from "react";
-const BlogForm = ({ createBlog }) => {
-  const [title, setTitle] = useState("");
-  const [author, setAuthor] = useState("");
-  const [url, setUrl] = useState("");
+import { useState } from 'react';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import blogService from '../services/blogs';
+import { useNotificationDispatch } from '../NotificationContex';
+const BlogForm = () => {
+    const queryClient = useQueryClient();
+    const dispatchNotification = useNotificationDispatch();
 
-  const addBlog = async (event) => {
-    event.preventDefault();
-  
-    createBlog({
-      title: title,
-      author: author,
-      url: url,
+    const newBlogMutation = useMutation({
+        mutationFn: blogService.create,
+        onSuccess: (newBlog) => {
+            queryClient.invalidateQueries({ queryKey: ['blogs'] });
+            const blogs = queryClient.getQueryData({ queryKey: ['blogs'] });
+            queryClient.setQueryData(
+                { queryKey: ['blogs'] },
+                blogs.concat(newBlog),
+            );
+            dispatchNotification({
+                type: 'SET_NOTIFICATION',
+                payload: {
+                    message: `Blog ${blogObject.title} by ${blogObject.author} created!`,
+                },
+            });
+        },
     });
-  
-    setTitle("");
-    setAuthor("");
-    setUrl("");
-  };
 
-  return (
-    <div>
-      <h2>create new</h2>
-      <form onSubmit={addBlog}>
+    const addBlog = async (event) => {
+        event.preventDefault();
+
+        const title = event.target.title.value;
+        const author = event.target.title.value;
+        const url = event.target.title.value;
+        event.target.title.value = '';
+        event.target.author.value = '';
+        event.target.url.value = '';
+        newBlogMutation.mutate({ title, author, url });
+    };
+
+    return (
         <div>
-          Title:
-          <input
-            data-testid="title"
-            type="text"
-            value={title}
-            name="Title"
-            onChange={({ target }) => setTitle(target.value)}
-          />
+            <h2>create new</h2>
+            <form onSubmit={addBlog}>
+                <div>
+                    Title:
+                    <input name="title" />
+                </div>
+                <div>
+                    Author:
+                    <input name="author" />
+                </div>
+                <div>
+                    url:
+                    <input name="url" />
+                </div>
+                <button type="submit">Create</button>
+            </form>
         </div>
-        <div>
-          Author:
-          <input
-            data-testid="author"
-            type="text"
-            value={author}
-            name="Author"
-            onChange={({ target }) => setAuthor(target.value)}
-          />
-        </div>
-        <div>
-          url:
-          <input
-            data-testid="url"
-            type="text"
-            value={url}
-            name="url"
-            onChange={({ target }) => setUrl(target.value)}
-          />
-        </div>
-        <button type="submit">Create</button>
-      </form>
-    </div>
-  );
+    );
 };
 
 export default BlogForm;

@@ -1,5 +1,15 @@
 import Togglable from './Togglable';
 import { useRef } from 'react';
+import {
+    BrowserRouter as Router,
+    Routes,
+    Route,
+    Link,
+    Navigate,
+    useParams,
+    useNavigate,
+    useMatch,
+} from 'react-router-dom';
 const Blog = ({ blog, handleLike, authUser, handleDelete }) => {
     const blogStyle = {
         paddingTop: 10,
@@ -13,9 +23,10 @@ const Blog = ({ blog, handleLike, authUser, handleDelete }) => {
     return (
         <div className="blog" style={blogStyle}>
             <div>
-                {blog.title} {blog.author}
+                <Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link>
+                
             </div>
-            <Togglable buttonLabel="View details" ref={blogDetailsRef}>
+            {/* <Togglable buttonLabel="View details" ref={blogDetailsRef}>
                 <ul>
                     <li>{blog.url}</li>
                     <li data-testid="likes">
@@ -38,7 +49,7 @@ const Blog = ({ blog, handleLike, authUser, handleDelete }) => {
                         Delete
                     </button>
                 )}
-            </Togglable>
+            </Togglable> */}
         </div>
     );
 };

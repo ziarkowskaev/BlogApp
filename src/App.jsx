@@ -8,65 +8,63 @@ import LoginForm from './components/LoginForm';
 import Togglable from './components/Togglable';
 import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { useNotificationDispatch } from './NotificationContex';
+import { useUserDispatch, useUserValue } from './UserContext';
 const App = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [user, setUser] = useState(null);
     const [loginVisible, setLoginVisible] = useState(false);
 
     const blogFormRef = useRef();
 
     const queryClient = useQueryClient();
     const dispatchNotification = useNotificationDispatch();
-
+    const dispatchUser = useUserDispatch();
+    const userValue = useUserValue();
+    const user = userValue.user
+    
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser');
         if (loggedUserJSON) {
             const user = JSON.parse(loggedUserJSON);
-            setUser(user);
+            dispatchUser({ type: 'LOGIN', payload: user });
             blogService.setToken(user.token);
         }
-    }, []);
-
-    
+    }, [dispatchUser]);
 
     function compareBlogs(a, b) {
         return a.likes < b.likes;
     }
 
-    const handleLogin = async (event) => {
-        event.preventDefault();
-
-        try {
-            const user = await loginService.login({
-                username,
-                password,
-            });
+    const loginUserMutation = useMutation({
+        mutationFn: loginService.login,
+        onSuccess: (user) => {
             window.localStorage.setItem(
                 'loggedBlogappUser',
                 JSON.stringify(user),
             );
             blogService.setToken(user.token);
-            setUser(user);
-
-            dispatchNotification({
-                type: 'SET_NOTIFICATION',
-                payload: { message: `Logged in user ${username}` },
-            });
+            dispatchUser({ type: 'LOGIN', payload: user });
             setUsername('');
             setPassword('');
-        } catch (exception) {
+            dispatchNotification({
+                type: 'SET_NOTIFICATION',
+                payload: { message: `Logged in user ${user.username}` },
+            });
+        },
+        onError: (error) => {
             dispatchNotification({
                 type: 'SET_NOTIFICATION',
                 payload: { message: `Wrong credentials` },
             });
-        }
+        },
+    });
+    const handleLogin = async (event) => {
+        event.preventDefault();
+        loginUserMutation.mutate({ username, password });
     };
     const handleLogOut = async (event) => {
         window.localStorage.removeItem('loggedNoteappUser');
-        setUser(null);
-        setUsername('');
-        setPassword('');
+        dispatchUser({ type: 'LOGOUT' });
     };
 
     const loginForm = () => {
@@ -126,7 +124,7 @@ const App = () => {
     });
 
     const deleteBlog = (blog) => {
-        deleteBlogMutation.mutate({...blog});
+        deleteBlogMutation.mutate({ ...blog });
     };
 
     const result = useQuery({
@@ -150,12 +148,12 @@ const App = () => {
             <h2>Blogs</h2>
             <Notification />
 
-            {!user && loginForm()}
+            {!userValue.auth && loginForm()}
 
-            {user && (
+            {userValue.auth && (
                 <div>
                     <div>
-                        {user.name} logged in
+                        {user.username} logged in
                         <button onClick={() => handleLogOut()}>Log out</button>
                     </div>
 
@@ -167,7 +165,7 @@ const App = () => {
                             key={blog.id}
                             blog={blog}
                             handleLike={addLike}
-                            authUser={user}
+                            authUser={user.id}
                             handleDelete={deleteBlog}
                         />
                     ))}

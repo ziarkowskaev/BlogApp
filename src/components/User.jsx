@@ -19,17 +19,15 @@ import {
     useMatch,
 } from 'react-router-dom';
 export default function User({ user }) {
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     if (!user) {
-        navigate('/')
-        return null
-      }
-  
+        navigate('/');
+        return null;
+    }
+
     return (
-        <List
-            sx={{ width: '100%', maxWidth: 360, bgcolor: 'background.paper' }}
-        >
+        <List sx={{ width: 'full', bgcolor: 'background.paper' }}>
             {user.blogs.map((blog) => (
                 <ListItem key={blog.id}>
                     <ListItemAvatar>

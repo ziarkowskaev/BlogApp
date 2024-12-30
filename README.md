@@ -19,11 +19,12 @@ npm run test
 
 👤 **Ewelina Ziarkowska**
 
-* Github: [@ziarkowskaev](https://github.com/ziarkowskaev)
+-   Github: [@ziarkowskaev](https://github.com/ziarkowskaev)
 
 ## Show your support
 
 Give a ⭐️ if this project helped you!
 
-***
+---
+
 _This README was generated with ❤️ by [readme-md-generator](https://github.com/kefranabg/readme-md-generator)_

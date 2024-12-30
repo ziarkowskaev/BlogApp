@@ -6,15 +6,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import {
-    BrowserRouter as Router,
-    Link
-} from 'react-router-dom';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 const Users = ({ users }) => {
-    function createData(name, id,blogsCount) {
-        return { name, id,blogsCount };
+    function createData(name, id, blogsCount) {
+        return { name, id, blogsCount };
     }
-    const rows = users.map((user) => createData(user.name, user.id, user.blogs.length));
+    const rows = users.map((user) =>
+        createData(user.name, user.id, user.blogs.length),
+    );
 
     return (
         <TableContainer component={Paper}>

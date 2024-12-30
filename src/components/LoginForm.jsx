@@ -8,28 +8,38 @@ const LoginForm = ({
     password,
 }) => {
     return (
-        <div>
-            <h2>Login</h2>
-
+        <div className="container mt-5" style={{ maxWidth: '400px' }}>
+            <h2 className="text-center mb-4">Login</h2>
             <form onSubmit={handleSubmit}>
-                <div>
-                    username
+                <div className="form-group">
+                    <label htmlFor="username">Username</label>
                     <input
+                        type="text"
+                        className="form-control"
+                        id="username"
                         data-testid="username"
                         value={username}
                         onChange={handleUsernameChange}
+                        placeholder="Enter username"
+                        required
                     />
                 </div>
-                <div>
-                    password
+                <div className="form-group">
+                    <label htmlFor="password">Password</label>
                     <input
-                        data-testid="password"
                         type="password"
+                        className="form-control"
+                        id="password"
+                        data-testid="password"
                         value={password}
                         onChange={handlePasswordChange}
+                        placeholder="Enter password"
+                        required
                     />
                 </div>
-                <button type="submit">login</button>
+                <button type="submit" className="btn btn-primary btn-block">
+                    Login
+                </button>
             </form>
         </div>
     );

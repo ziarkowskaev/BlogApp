@@ -36,7 +36,7 @@ const App = () => {
     const user = userValue.user;
 
     const matchUser = useMatch('/users/:id');
-    const matchBlog = useMatch('/blogs/:id')
+    const matchBlog = useMatch('/blogs/:id');
     useEffect(() => {
         const loggedUserJSON = window.localStorage.getItem('loggedNoteappUser');
         if (loggedUserJSON) {
@@ -49,7 +49,7 @@ const App = () => {
     function compareBlogs(a, b) {
         return a.likes < b.likes;
     }
-    
+
     const loginUserMutation = useMutation({
         mutationFn: loginService.login,
         onSuccess: (user) => {
@@ -158,72 +158,85 @@ const App = () => {
     }
 
     if (result.isError || usersQuery.isError) {
-        return <span>Error: {result.error?.message || usersQuery.error?.message}</span>;
+        return (
+            <span>
+                Error: {result.error?.message || usersQuery.error?.message}
+            </span>
+        );
     }
     const blogs = result.data.sort(compareBlogs);
     const users = usersQuery.data;
     const userMatched = matchUser
         ? users.find((user) => user.id === matchUser.params.id)
         : null;
-        const blogMatched = matchBlog
+    const blogMatched = matchBlog
         ? blogs.find((blog) => blog.id === matchBlog.params.id)
         : null;
 
     return (
         <div>
-        <NavBar />
-            <h2>Blogs</h2>
-            <Notification />
-            
-            <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <div>
-                            {!userValue.auth && loginForm()}
+            <NavBar />
+            <div style={{ margin: '1em' }}>
+                <h1>Blogs</h1>
+                <Notification />
 
-                            {userValue.auth && (
-                                <div>
+                <Routes>
+                    <Route
+                        path="/"
+                        element={
+                            <div>
+                                {!userValue.auth && loginForm()}
+
+                                {userValue.auth && (
                                     <div>
-                                        {user.username} logged in
-                                        <button onClick={() => handleLogOut()}>
-                                            Log out
-                                        </button>
-                                    </div>
+                                        <div>
+                                            <span
+                                                style={{ fontWeight: 'bold' }}
+                                            >
+                                                {user.username}
+                                            </span>{' '}
+                                            logged in
+                                            <button
+                                                style={{ marginLeft: '10px' }}
+                                                onClick={() => handleLogOut()}
+                                            >
+                                                Log out
+                                            </button>
+                                        </div>
 
-                                    <Togglable
-                                        buttonLabel="New Blog"
-                                        ref={blogFormRef}
-                                    >
-                                        <BlogForm />
-                                    </Togglable>
-                                    {blogs.map((blog) => (
-                                        <Blog
-                                            key={blog.id}
-                                            blog={blog}
-                                            handleLike={addLike}
-                                            authUser={user.id}
-                                            handleDelete={deleteBlog}
-                                        />
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    }
-                />
-                <Route
-                    path="/users"
-                    element={<Users users={users} />}
-                />
-                <Route
-                    path="/users/:id"
-                    element={<User user={userMatched} />}
-                />
-                <Route
-                    path="/blogs/:id"
-                    element={<BlogView blog={blogMatched} handleLike={addLike}/>}
-                />
-            </Routes>
+                                        <Togglable
+                                            buttonLabel="Add Blog"
+                                            ref={blogFormRef}
+                                        >
+                                            <BlogForm />
+                                        </Togglable>
+                                        {blogs.map((blog) => (
+                                            <Blog
+                                                key={blog.id}
+                                                blog={blog}
+                                                handleLike={addLike}
+                                                authUser={user.id}
+                                                handleDelete={deleteBlog}
+                                            />
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        }
+                    />
+                    <Route path="/users" element={<Users users={users} />} />
+                    <Route
+                        path="/users/:id"
+                        element={<User user={userMatched} />}
+                    />
+                    <Route
+                        path="/blogs/:id"
+                        element={
+                            <BlogView blog={blogMatched} handleLike={addLike} />
+                        }
+                    />
+                </Routes>
+            </div>
         </div>
     );
 };

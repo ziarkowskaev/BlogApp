@@ -22,9 +22,10 @@ const Blog = ({ blog, handleLike, authUser, handleDelete }) => {
 
     return (
         <div className="blog" style={blogStyle}>
-            <div>
-                <Link to={`/blogs/${blog.id}`}>{blog.title} {blog.author}</Link>
-                
+            <div style={{ margin: '8px' }}>
+                <Link to={`/blogs/${blog.id}`}>
+                    {blog.title} {blog.author}
+                </Link>
             </div>
             {/* <Togglable buttonLabel="View details" ref={blogDetailsRef}>
                 <ul>
